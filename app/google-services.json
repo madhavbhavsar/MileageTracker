@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "48315748223",
+    "project_id": "mileagetracker-96153",
+    "storage_bucket": "mileagetracker-96153.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48315748223:android:f48dd3ffdf647781e6144a",
+        "android_client_info": {
+          "package_name": "com.dice.mileagetracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZ_hR1JsZVCMuF9E7YC0DXFR4uVbSB0nY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
