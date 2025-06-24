@@ -10,7 +10,7 @@ import javax.inject.Singleton
 class MyPreference @Inject constructor(private var mSharedPref: SharedPreferences?) {
 
     var journeyIdPref: Int
-        get() = getValueInt(PrefKey.JOURNEY_ID, 1)
+        get() = getValueInt(PrefKey.JOURNEY_ID, 0)
         set(value) = setValueInt(PrefKey.JOURNEY_ID, value)
 
     fun getValueString(

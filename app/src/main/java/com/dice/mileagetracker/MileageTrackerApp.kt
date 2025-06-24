@@ -11,6 +11,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dice.mileagetracker.ui.home.HomeScreenView
 import com.dice.mileagetracker.ui.home.viewmodel.HomeViewModel
+import com.dice.mileagetracker.ui.pastjourney.PastJourneyScreen
+import com.dice.mileagetracker.ui.pastjourney.viewmodel.PastJourneyViewModel
 import com.dice.mileagetracker.ui.splash.SplashScreenView
 import com.dice.mileagetracker.utils.Routes
 
@@ -33,6 +35,10 @@ fun MileageTrackerApp() {
         composable<Routes.HomeScreen> {
             val viewModel = hiltViewModel<HomeViewModel>()
             HomeScreenView(navHostController, viewModel)
+        }
+        composable<Routes.PastJourney> {
+            val viewModel = hiltViewModel<PastJourneyViewModel>()
+            PastJourneyScreen(navHostController, viewModel)
         }
     }
 }

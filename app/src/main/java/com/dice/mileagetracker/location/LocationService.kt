@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import com.dice.mileagetracker.R
 import com.dice.mileagetracker.data.LocationEntity
-import com.dice.mileagetracker.ui.home.repository.HomeRepository
+import com.dice.mileagetracker.data.LocationRepository
 import com.dice.mileagetracker.utils.MyPreference
 import com.dice.mileagetracker.utils.formatElapsedTime
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +30,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class LocationService: Service() {
 
     @Inject
-    lateinit var myRepository: HomeRepository
+    lateinit var myRepository: LocationRepository
 
     @Inject
     lateinit var mPref: MyPreference

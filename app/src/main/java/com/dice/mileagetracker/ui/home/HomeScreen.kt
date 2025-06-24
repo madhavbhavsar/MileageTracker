@@ -31,6 +31,7 @@ import com.dice.mileagetracker.ui.theme.Color_021632
 import com.dice.mileagetracker.ui.theme.Color_2196F3
 import com.dice.mileagetracker.utils.Constants
 import com.dice.mileagetracker.utils.LocationPermission
+import com.dice.mileagetracker.utils.Routes
 import com.dice.mileagetracker.utils.singleClickable
 
 @Composable
@@ -188,5 +189,18 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                 fontSize = 20.sp
             )
         }
+
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .singleClickable {
+                    navHostController.navigate(Routes.PastJourney)
+                }
+                .padding(10.dp),
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            text = Constants.PAST_JOURNEY,
+            fontSize = 24.sp
+        )
     }
 }
