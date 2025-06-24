@@ -12,8 +12,8 @@ sealed class Routes{
     data object HomeScreen : Routes()
 
     @Serializable
-    data object SummaryScreen : Routes()
+    data object PastJourney : Routes()
 
     @Serializable
-    data object DetailScreen : Routes()
+    data object MapScreen: Routes()
 }

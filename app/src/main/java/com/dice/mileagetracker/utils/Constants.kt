@@ -4,6 +4,7 @@ import com.dice.mileagetracker.BuildConfig
 
 object PrefKey {
     const val PREFERENCE_NAME = BuildConfig.APPLICATION_ID
+    const val JOURNEY_ID = "journeyId"
 }
 
 object Constants {

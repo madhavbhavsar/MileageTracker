@@ -1,5 +1,6 @@
 package com.dice.mileagetracker.ui.home
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.dice.mileagetracker.location.LocationService
 import com.dice.mileagetracker.ui.home.viewmodel.HomeViewModel
 import com.dice.mileagetracker.ui.home.viewmodel.JourneyState
 import com.dice.mileagetracker.ui.theme.Color_021632
@@ -36,12 +38,14 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     LocationPermission(context)
+
+    // button states
     LaunchedEffect(uiState.journeyState) {
         when (uiState.journeyState) {
             JourneyState.New -> {
                 viewModel.startEnabled(true)
-                viewModel.stopEnabled(true)
-                viewModel.pauseResEnabled(true)
+                viewModel.stopEnabled(false)
+                viewModel.pauseResEnabled(false)
             }
 
             JourneyState.Started, JourneyState.Paused, JourneyState.Resumed -> {
@@ -57,6 +61,30 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
             }
         }
     }
+
+    LaunchedEffect(uiState.journeyState, uiState.startEnabled) {
+        when {
+            (uiState.journeyState == JourneyState.Started) && uiState.startEnabled -> {
+                // update journey id whenever start clicked
+                viewModel.updateJourneyId = (viewModel.updateJourneyId + 1)
+                Intent(context, LocationService::class.java).apply {
+                    action = LocationService.ACTION_START
+                    context.startService(this)
+                }
+            }
+
+            (uiState.journeyState == JourneyState.Stop) && uiState.stopEnabled -> {
+                Intent(context, LocationService::class.java).apply {
+                    action = LocationService.ACTION_STOP
+                    context.startService(this)
+                }
+            }
+
+            else -> {/*empty*/
+            }
+        }
+    }
+
     Column(
         Modifier
             .padding(16.dp)

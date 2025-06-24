@@ -121,6 +121,7 @@ fun askPermissions(context: Context, requestCode: Int, vararg permissions: Strin
 
 
 
+
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
 fun fetchUserLocation(
     context: Context,
@@ -178,4 +179,15 @@ fun LocationPermission(context: Context, onGranted: () -> Unit = {}) {
             }
         }
     }
+}
+
+fun Context.hasLocationPermission(): Boolean {
+    return ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
 }

@@ -104,3 +104,9 @@ fun Context.openGoogleMaps(originLat: Float?, originLng: Float?, destLat: Float?
         Toast.makeText(this, Constants.UNAVAILABLE, Toast.LENGTH_SHORT).show()
     }
 }
+
+fun formatElapsedTime(seconds: Long): String {
+    val mins = seconds / 60
+    val secs = seconds % 60
+    return String.format("%02dm:%02ds", mins, secs)
+}
