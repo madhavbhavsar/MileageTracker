@@ -20,15 +20,35 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun startEnabled(flag: Boolean){
+        _uiState.update {
+            it.copy(startEnabled = flag)
+        }
+    }
+    fun stopEnabled(flag: Boolean){
+        _uiState.update {
+            it.copy(stopEnabled = flag)
+        }
+    }
+    fun pauseResEnabled(flag: Boolean){
+        _uiState.update {
+            it.copy(pauseResEnabled = flag)
+        }
+    }
+
 }
 
 data class HomeState(
-    val journeyState: JourneyState = JourneyState.New
+    val journeyState: JourneyState = JourneyState.New,
+    val startEnabled : Boolean = true,
+    val pauseResEnabled : Boolean = true,
+    val stopEnabled : Boolean = true,
 )
 
 enum class JourneyState {
     New,
     Started,
     Paused,
+    Resumed,
     Stop
 }

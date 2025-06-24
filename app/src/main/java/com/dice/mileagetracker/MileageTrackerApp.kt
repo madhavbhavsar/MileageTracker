@@ -1,5 +1,7 @@
 package com.dice.mileagetracker
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,7 +20,11 @@ fun MileageTrackerApp() {
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navHostController,
-        startDestination = Routes.SplashScreen
+        startDestination = Routes.SplashScreen,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popExitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None }
     ) {
         composable<Routes.SplashScreen> {
             SplashScreenView(navHostController)
