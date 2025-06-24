@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,12 +28,14 @@ import com.dice.mileagetracker.ui.home.viewmodel.JourneyState
 import com.dice.mileagetracker.ui.theme.Color_021632
 import com.dice.mileagetracker.ui.theme.Color_2196F3
 import com.dice.mileagetracker.utils.Constants
+import com.dice.mileagetracker.utils.LocationPermission
 import com.dice.mileagetracker.utils.singleClickable
 
 @Composable
 fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+    val context = LocalContext.current
+    LocationPermission(context)
     LaunchedEffect(uiState.journeyState) {
         when (uiState.journeyState) {
             JourneyState.New -> {
@@ -52,7 +55,6 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                 viewModel.stopEnabled(false)
                 viewModel.pauseResEnabled(false)
             }
-
         }
     }
     Column(

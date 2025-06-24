@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.firebase.crashlitycs)
     alias(libs.plugins.gms.googleServices)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -42,6 +43,9 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
+    }
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 }
 
@@ -86,4 +90,10 @@ dependencies {
     implementation(libs.maps.compose)
     implementation (libs.play.services.maps)
     implementation (libs.play.services.location)
+
+    // room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    annotationProcessor(libs.room.compiler)
 }
