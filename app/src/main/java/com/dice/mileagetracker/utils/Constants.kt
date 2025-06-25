@@ -26,4 +26,13 @@ object Constants {
                 "&destination=$destLat,$destLng" +
                 "&travelmode=driving"
     }
+
+    val JOURNEY_ID = "JOURNEY ID: "
+    val JOURNEY_MILES = "Miles: "
+    val JOURNEY_KILOMETERS = "Kilometers: "
+    val JOURNEY_TIME = "Total time: "
+    val SHOW_MAP = "SHOW MAP"
+    val PAST_JOURNEYS = "Past Journeys"
+    val HOME = "Home"
+    val JOURNEY_ROUTE = "Journey Route"
 }
