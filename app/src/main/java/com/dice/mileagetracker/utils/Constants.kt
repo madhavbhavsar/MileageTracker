@@ -5,6 +5,9 @@ import com.dice.mileagetracker.BuildConfig
 object PrefKey {
     const val PREFERENCE_NAME = BuildConfig.APPLICATION_ID
     const val JOURNEY_ID = "journeyId"
+    const val IS_TRACKING_PAUSED = "isTrackingPaused"
+    const val IS_TRACKING = "isTracking"
+    const val TRACKING_START_TIME = "trackingStartTime"
 }
 
 object Notification {

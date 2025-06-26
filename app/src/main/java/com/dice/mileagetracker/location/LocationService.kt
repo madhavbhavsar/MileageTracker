@@ -40,10 +40,16 @@ class LocationService : Service() {
 
     private var lastLocation: Location? = null
     private var startTime: Long = 0L
+    private var pauseStartTime: Long = 0L
+    private var totalPausedDuration: Long = 0L
     private var elapsedTime: String = Constants.EMPTY
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var locationClient: LocationClient
+
+    private var isPaused = false
+    private var locationJob: kotlinx.coroutines.Job? = null
+    private var timerJob: kotlinx.coroutines.Job? = null
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
@@ -52,8 +58,7 @@ class LocationService : Service() {
     override fun onCreate() {
         super.onCreate()
         locationClient = DefaultLocationClient(
-            applicationContext,
-            LocationServices.getFusedLocationProviderClient(applicationContext)
+            applicationContext, LocationServices.getFusedLocationProviderClient(applicationContext)
         )
     }
 
@@ -61,36 +66,64 @@ class LocationService : Service() {
         when (intent?.action) {
             ACTION_START -> start()
             ACTION_STOP -> stop()
+            ACTION_PAUSE -> pause()
+            ACTION_RESUME -> resume()
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
+    }
+
+    private fun pause() {
+        isPaused = true
+        pauseStartTime = System.currentTimeMillis()
+        mPref.isTrackingPaused = true
+    }
+
+    private fun resume() {
+        isPaused = false
+        val resumeTime = System.currentTimeMillis()
+        val pausedDuration = resumeTime - pauseStartTime
+        totalPausedDuration += pausedDuration
+        mPref.isTrackingPaused = false
     }
 
     private fun start() {
-        startTime = System.currentTimeMillis()
+        startTime = if (mPref.trackingStartTime != 0L) mPref.trackingStartTime else {
+            System.currentTimeMillis().also { mPref.trackingStartTime = it }
+        }
+        isPaused = false
+
         val notification = NotificationCompat.Builder(this, Notification.CHANNEL_ID)
-            .setContentTitle(Constants.TRACKING_LOCATION)
-            .setContentText(printLocationTime())
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setOngoing(true)
+            .setContentTitle(Constants.TRACKING_LOCATION).setContentText(printLocationTime())
+            .setSmallIcon(R.mipmap.ic_launcher).setOngoing(true)
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        serviceScope.launch {
+        timerJob = serviceScope.launch {
             try {
                 while (true) {
-                    val elapsed = (System.currentTimeMillis() - startTime) / 1000
-                    val formatted = formatElapsedTime(elapsed)
-                    elapsedTime = formatted
-                    val lat = lastLocation?.latitude ?: 0.0
-                    val lng = lastLocation?.longitude ?: 0.0
+                    if (isPaused) {
+                        delay(1000L)
+                        continue
+                    }
 
-                    notification.setContentText(printLocationTime(
-                        lat = lat.toString(),
-                        long = lng.toString(),
-                        time = formatted,
-                    ))
-                    notificationManager.notify(1, notification.build())
+
+                    if (!isPaused) {
+                        val elapsed = (System.currentTimeMillis() - startTime - totalPausedDuration) / 1000
+                        val formatted = formatElapsedTime(elapsed)
+                        elapsedTime = formatted
+                        val lat = lastLocation?.latitude ?: 0.0
+                        val lng = lastLocation?.longitude ?: 0.0
+
+                        notification.setContentText(
+                            printLocationTime(
+                                lat = lat.toString(),
+                                long = lng.toString(),
+                                time = formatted,
+                            )
+                        )
+                        notificationManager.notify(1, notification.build())
+                    }
                     delay(1000L)
                 }
             } catch (e: CancellationException) {
@@ -100,30 +133,29 @@ class LocationService : Service() {
             }
         }
 
-        locationClient
-            .getLocationUpdates()
-            .catch { e -> e.printStackTrace() }
+        locationJob = locationClient.getLocationUpdates().catch { e -> e.printStackTrace() }
             .onEach { location ->
-                if (!isValidLocation(location)) return@onEach
-                lastLocation = location
-
-                serviceScope.launch {
-                    myRepository.insertLocation(
-                        LocationEntity(
-                            journeyId = mPref.journeyIdPref.toLong(),
-                            latitude = location.latitude,
-                            longitude = location.longitude,
-                            timestamp = System.currentTimeMillis()
+                if (!isPaused && isValidLocation(location)) {
+                    lastLocation = location
+                    serviceScope.launch {
+                        myRepository.insertLocation(
+                            LocationEntity(
+                                journeyId = mPref.journeyIdPref.toLong(),
+                                latitude = location.latitude,
+                                longitude = location.longitude,
+                                timestamp = System.currentTimeMillis()
+                            )
                         )
-                    )
+                    }
                 }
-            }
-            .launchIn(serviceScope)
+            }.launchIn(serviceScope)
 
         startForeground(1, notification.build())
     }
 
     private fun stop() {
+        timerJob?.cancel()
+        locationJob?.cancel()
         serviceScope.launch {
             myRepository.insertLocation(
                 LocationEntity(
@@ -141,13 +173,16 @@ class LocationService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        timerJob?.cancel()
+        locationJob?.cancel()
         serviceScope.cancel()
     }
 
     companion object {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
-
+        const val ACTION_PAUSE = "ACTION_PAUSE"
+        const val ACTION_RESUME = "ACTION_RESUME"
     }
 
     private fun isValidLocation(newLocation: Location): Boolean {

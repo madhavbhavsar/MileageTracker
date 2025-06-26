@@ -59,31 +59,6 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
         }
     }
 
-    LaunchedEffect(uiState.journeyState, uiState.startEnabled) {
-        when {
-            (uiState.journeyState == JourneyState.Started) && uiState.startEnabled -> {
-                // update journey id whenever start clicked
-                viewModel.updateJourneyId = (viewModel.updateJourneyId + 1)
-                Intent(context, LocationService::class.java).apply {
-                    action = LocationService.ACTION_START
-                    context.startService(this)
-                }
-            }
-
-            (uiState.journeyState == JourneyState.Stop) && uiState.stopEnabled -> {
-                Intent(context, LocationService::class.java).apply {
-                    action = LocationService.ACTION_STOP
-                    context.startService(this)
-                }
-            }
-
-            else -> {/*empty*/
-            }
-        }
-    }
-
-
-
     Column(
         Modifier
             .fillMaxSize()
@@ -94,9 +69,11 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                 appBarTitle = Constants.HOME,
             )
         )
-        Column(Modifier
-            .padding(horizontal = 16.dp)
-            .navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            Modifier
+                .padding(horizontal = 16.dp)
+                .navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Spacer(Modifier.weight(1f))
             Text(
                 modifier = Modifier
@@ -109,6 +86,15 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                         // start journey
                         if (uiState.startEnabled) {
                             viewModel.updateJourneyState(JourneyState.Started)
+                            viewModel.updateJourneyId = (viewModel.updateJourneyId + 1)
+                            viewModel.updateTrackingStartTime = System.currentTimeMillis()
+                            viewModel.updateIsTracking = true
+                            viewModel.updateIsTrackingPaused = false
+
+                            Intent(context, LocationService::class.java).apply {
+                                action = LocationService.ACTION_START
+                                context.startService(this)
+                            }
                         }
                     }
                     .padding(10.dp),
@@ -132,10 +118,22 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                             when (uiState.journeyState) {
                                 JourneyState.Started, JourneyState.Resumed -> {
                                     viewModel.updateJourneyState(JourneyState.Paused)
+                                    viewModel.updateIsTracking = false
+                                    viewModel.updateIsTrackingPaused = true
+                                    Intent(context, LocationService::class.java).apply {
+                                        action = LocationService.ACTION_PAUSE
+                                        context.startService(this)
+                                    }
                                 }
 
                                 JourneyState.Paused -> {
                                     viewModel.updateJourneyState(JourneyState.Resumed)
+                                    viewModel.updateIsTracking = true
+                                    viewModel.updateIsTrackingPaused = false
+                                    Intent(context, LocationService::class.java).apply {
+                                        action = LocationService.ACTION_RESUME
+                                        context.startService(this)
+                                    }
                                 }
 
                                 else -> {/*empty*/
@@ -172,6 +170,14 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                         // stop journey
                         if (uiState.stopEnabled) {
                             viewModel.updateJourneyState(JourneyState.Stop)
+
+                            viewModel.updateIsTracking = false
+                            viewModel.updateIsTrackingPaused = false
+
+                            Intent(context, LocationService::class.java).apply {
+                                action = LocationService.ACTION_STOP
+                                context.startService(this)
+                            }
                         }
                     }
                     .padding(10.dp),
@@ -210,7 +216,7 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                         shape = RoundedCornerShape(8.dp)
                     )
                     .singleClickable {
-                        if(uiState.startEnabled){
+                        if (uiState.startEnabled) {
                             navHostController.navigate(Routes.PastJourney)
                         }
                     }

@@ -22,6 +22,18 @@ class HomeViewModel @Inject constructor(
         get() = mPref.journeyIdPref
         set(value) { mPref.journeyIdPref = value }
 
+    var updateTrackingStartTime: Long
+        get() = mPref.trackingStartTime
+        set(value) { mPref.trackingStartTime = value }
+
+    var updateIsTracking: Boolean
+        get() = mPref.isTracking
+        set(value) { mPref.isTracking = value }
+
+    var updateIsTrackingPaused: Boolean
+        get() = mPref.isTrackingPaused
+        set(value) { mPref.isTrackingPaused = value }
+
     fun updateJourneyState(flag: JourneyState) {
         _uiState.update {
             it.copy(journeyState = flag)

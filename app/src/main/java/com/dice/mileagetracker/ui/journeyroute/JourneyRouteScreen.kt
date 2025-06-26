@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -17,16 +18,16 @@ import com.dice.mileagetracker.R
 import com.dice.mileagetracker.ui.common.AppBar
 import com.dice.mileagetracker.ui.common.AppBarProperties
 import com.dice.mileagetracker.ui.pastjourney.viewmodel.JourneyModel
-import com.dice.mileagetracker.ui.theme.Color_021632
-import com.dice.mileagetracker.ui.theme.Color_2196F3
-import com.dice.mileagetracker.ui.theme.Color_FFFFFF
 import com.dice.mileagetracker.utils.Constants
 import com.dice.mileagetracker.utils.Constants.addCurveBrackets
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
+import com.dice.mileagetracker.ui.theme.Color_021632
+import com.dice.mileagetracker.ui.theme.Color_FFFFFF
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
@@ -35,6 +36,20 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun JourneyRouteScreen(navController: NavController, journey: JourneyModel) {
     val cameraPositionState = rememberCameraPositionState()
     val context = LocalContext.current
+
+    LaunchedEffect(true) {
+        journey.journeyPoints?.let { points ->
+            val startingPoint = LatLng(
+                points[0].latitude ?: 0.0,
+                points[0].longitude ?: 0.0
+            )
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(startingPoint, 11f),
+                durationMs = 1000
+            )
+        }
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -70,7 +85,7 @@ fun JourneyRouteScreen(navController: NavController, journey: JourneyModel) {
                     if (polylinePoints.size >= 2) {
                         Polyline(
                             points = polylinePoints,
-                            color = Color_2196F3,
+                            color = Color_021632,
                             width = 5f
                         )
                     }
