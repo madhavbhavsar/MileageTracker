@@ -51,8 +51,8 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val journeyState: JourneyState = JourneyState.New,
     val startEnabled: Boolean = true,
-    val pauseResEnabled: Boolean = true,
-    val stopEnabled: Boolean = true,
+    val pauseResEnabled: Boolean = false,
+    val stopEnabled: Boolean = false,
 )
 
 enum class JourneyState {
