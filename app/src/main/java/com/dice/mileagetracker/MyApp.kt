@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.content.Context
+import com.dice.mileagetracker.utils.Notification
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -14,7 +15,9 @@ class MyApp : Application() {
         super.onCreate()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                "location", "Location", NotificationManager.IMPORTANCE_HIGH
+                Notification.CHANNEL_ID,
+                Notification.CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 setSound(null, null)
                 enableVibration(false)

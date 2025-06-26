@@ -7,6 +7,11 @@ object PrefKey {
     const val JOURNEY_ID = "journeyId"
 }
 
+object Notification {
+    const val CHANNEL_ID = "location"
+    const val CHANNEL_NAME = "Location"
+}
+
 object Constants {
     const val EMPTY = ""
     const val SPACE = " "
@@ -36,6 +41,7 @@ object Constants {
     const val DEVELOPED_BY = "Developed by Madhav Bhavsar"
     const val JOURNEY_DB = "journeydb"
     const val MILES_KMS = 0.621371
+    const val TRACKING_LOCATION = "Tracking location..."
 
     fun String.addCurveBrackets(): String {
         return "(${this})"
@@ -46,5 +52,9 @@ object Constants {
                 "&origin=$originLat,$originLng" +
                 "&destination=$destLat,$destLng" +
                 "&travelmode=driving"
+    }
+
+    fun printLocationTime(lat: String? = null, long: String? = null, time: String? = null): String {
+        return "Location: (${lat},${long})\nElapsed Time: ${time}"
     }
 }

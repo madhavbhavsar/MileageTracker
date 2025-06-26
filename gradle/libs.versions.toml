@@ -48,6 +48,9 @@ playServicesLocation = "21.3.0"
 # room
 room = "2.7.2"
 
+# system ui
+systemui = "0.32.0"
+
 [libraries]
 # kotlin - base
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -95,6 +98,9 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+
+# system ui
+system-ui = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "systemui" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

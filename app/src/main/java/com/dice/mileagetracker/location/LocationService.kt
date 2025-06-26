@@ -10,7 +10,10 @@ import androidx.core.app.NotificationCompat
 import com.dice.mileagetracker.R
 import com.dice.mileagetracker.data.LocationEntity
 import com.dice.mileagetracker.data.LocationRepository
+import com.dice.mileagetracker.utils.Constants
+import com.dice.mileagetracker.utils.Constants.printLocationTime
 import com.dice.mileagetracker.utils.MyPreference
+import com.dice.mileagetracker.utils.Notification
 import com.dice.mileagetracker.utils.formatElapsedTime
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +30,7 @@ import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @AndroidEntryPoint
-class LocationService: Service() {
+class LocationService : Service() {
 
     @Inject
     lateinit var myRepository: LocationRepository
@@ -36,9 +39,8 @@ class LocationService: Service() {
     lateinit var mPref: MyPreference
 
     private var lastLocation: Location? = null
-
     private var startTime: Long = 0L
-    private var elapsedTime: String = ""
+    private var elapsedTime: String = Constants.EMPTY
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var locationClient: LocationClient
@@ -56,7 +58,7 @@ class LocationService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when(intent?.action) {
+        when (intent?.action) {
             ACTION_START -> start()
             ACTION_STOP -> stop()
         }
@@ -64,14 +66,15 @@ class LocationService: Service() {
     }
 
     private fun start() {
-        startTime = System.currentTimeMillis() // 🔥 Start time from NOW
-        val notification = NotificationCompat.Builder(this, "location")
-            .setContentTitle("Tracking location...")
-            .setContentText("Location: null\nElapsed Time: 0s")
-            .setSmallIcon(R.drawable.ic_launcher_background)
+        startTime = System.currentTimeMillis()
+        val notification = NotificationCompat.Builder(this, Notification.CHANNEL_ID)
+            .setContentTitle(Constants.TRACKING_LOCATION)
+            .setContentText(printLocationTime())
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
 
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         serviceScope.launch {
             try {
@@ -82,7 +85,11 @@ class LocationService: Service() {
                     val lat = lastLocation?.latitude ?: 0.0
                     val lng = lastLocation?.longitude ?: 0.0
 
-                    notification.setContentText("Location: ($lat, $lng)\nElapsed Time: $formatted")
+                    notification.setContentText(printLocationTime(
+                        lat = lat.toString(),
+                        long = lng.toString(),
+                        time = formatted,
+                    ))
                     notificationManager.notify(1, notification.build())
                     delay(1000L)
                 }
@@ -97,16 +104,9 @@ class LocationService: Service() {
             .getLocationUpdates()
             .catch { e -> e.printStackTrace() }
             .onEach { location ->
-
                 if (!isValidLocation(location)) return@onEach
                 lastLocation = location
 
-                /*val lat = location.latitude.toString()
-                val long = location.longitude.toString()
-                val updatedNotification = notification.setContentText(
-                    "Location: ($lat, $long) - Elapsed Time: ${formatElapsedTime((System.currentTimeMillis() - startTime) / 1000)}"
-                )
-                notificationManager.notify(1, updatedNotification.build())*/
                 serviceScope.launch {
                     myRepository.insertLocation(
                         LocationEntity(
@@ -129,7 +129,7 @@ class LocationService: Service() {
                 LocationEntity(
                     journeyId = mPref.journeyIdPref.toLong(),
                     latitude = lastLocation?.latitude?.toDouble() ?: 0.0,
-                    longitude = lastLocation?.longitude?.toDouble()?:0.0,
+                    longitude = lastLocation?.longitude?.toDouble() ?: 0.0,
                     timestamp = System.currentTimeMillis(),
                     elapsedTime = elapsedTime
                 )
@@ -147,11 +147,12 @@ class LocationService: Service() {
     companion object {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
+
     }
 
     private fun isValidLocation(newLocation: Location): Boolean {
         val accuracy = newLocation.accuracy
-        if (accuracy > 30f) return false // bad GPS
+        if (accuracy > 30f) return false
 
         lastLocation?.let { last ->
             val distance = last.distanceTo(newLocation)

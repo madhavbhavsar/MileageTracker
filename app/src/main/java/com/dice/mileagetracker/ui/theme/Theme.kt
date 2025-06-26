@@ -1,6 +1,6 @@
 package com.dice.mileagetracker.ui.theme
 
-import android.app.Activity
+
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,7 +9,9 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -49,6 +51,13 @@ fun MileageTrackerTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setSystemBarsColor(
+        darkIcons = false,
+        color = Color.Transparent,
+        isNavigationBarContrastEnforced = false
+    )
 
     MaterialTheme(
         colorScheme = colorScheme,

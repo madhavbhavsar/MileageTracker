@@ -1,5 +1,6 @@
 package com.dice.mileagetracker
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.dice.mileagetracker.location.LocationService
 import com.dice.mileagetracker.ui.theme.MileageTrackerTheme
 import com.dice.mileagetracker.utils.MyPreference
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,5 +32,13 @@ class MainActivity : ComponentActivity() {
                 MileageTrackerApp()
             }
         }
+    }
+
+    override fun onDestroy() {
+        Intent(applicationContext, LocationService::class.java).apply {
+            action = LocationService.ACTION_STOP
+            applicationContext.startService(this)
+        }
+        super.onDestroy()
     }
 }
