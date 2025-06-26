@@ -7,6 +7,7 @@ import com.dice.mileagetracker.data.LocationRepository
 import com.dice.mileagetracker.utils.Constants
 import com.dice.mileagetracker.utils.haversineDistance
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,7 @@ class PastJourneyViewModel @Inject constructor(
     fun fetchDataFromDB() {
         Log.i("FetchDB", "fetchDataFromDB: 1")
         viewModelScope.launch {
+            delay(1000L) // delay for smooth transition
             updateLoadingState(true)
             Log.i("FetchDB", "fetchDataFromDB: 2")
             val locations = repository.fetchAllLocation()
@@ -58,8 +60,8 @@ class PastJourneyViewModel @Inject constructor(
                                 longitude = it.longitude
                             )
                         },
-                        journeyKms = totalDistanceKm.toString(),
-                        journeyMiles = totalDistanceMiles.toString(),
+                        journeyKms = Constants.DECIMAL_FORMAT.format(totalDistanceKm),
+                        journeyMiles = Constants.DECIMAL_FORMAT.format(totalDistanceMiles),
                         journeyDuration = points.last().elapsedTime.toString()
                     )
                 }
@@ -90,7 +92,7 @@ class PastJourneyViewModel @Inject constructor(
 }
 
 data class PastJourneyState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val journeyList: List<JourneyModel>? = emptyList<JourneyModel>()
 )
 

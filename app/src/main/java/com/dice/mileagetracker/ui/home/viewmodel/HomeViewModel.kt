@@ -1,7 +1,6 @@
 package com.dice.mileagetracker.ui.home.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.dice.mileagetracker.data.LocationRepository
 import com.dice.mileagetracker.utils.MyPreference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
