@@ -42,6 +42,7 @@ object Constants {
     const val JOURNEY_DB = "journeydb"
     const val MILES_KMS = 0.621371
     const val TRACKING_LOCATION = "Tracking location..."
+    const val DECIMAL_FORMAT = "%.2f"
 
     fun String.addCurveBrackets(): String {
         return "(${this})"
