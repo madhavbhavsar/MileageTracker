@@ -1,7 +1,7 @@
 package com.dice.mileagetracker.ui.home.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.dice.mileagetracker.ui.home.repository.HomeRepository
+import com.dice.mileagetracker.data.LocationRepository
 import com.dice.mileagetracker.utils.MyPreference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +12,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: HomeRepository,
     private val mPref: MyPreference
 ) : ViewModel() {
 

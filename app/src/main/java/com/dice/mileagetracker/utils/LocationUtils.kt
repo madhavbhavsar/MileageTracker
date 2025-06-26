@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.dice.mileagetracker.data.LocationEntity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -190,4 +191,18 @@ fun Context.hasLocationPermission(): Boolean {
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
+}
+
+fun calculateDuration(points: List<LocationEntity>): String {
+    val start = points.minOfOrNull { it.timestamp } ?: return "0s"
+    val end = points.maxOfOrNull { it.timestamp } ?: return "0s"
+    val durationMillis = end - start
+    val seconds = durationMillis / 1000
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    return when {
+        hours > 0 -> "${hours}h ${minutes % 60}m"
+        minutes > 0 -> "${minutes}m ${seconds % 60}s"
+        else -> "${seconds}s"
+    }
 }

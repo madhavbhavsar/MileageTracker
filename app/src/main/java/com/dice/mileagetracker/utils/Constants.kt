@@ -19,6 +19,7 @@ object Constants {
     const val JOURNEY_COMPLETED = "Journey Completed"
     const val RESUME_JOURNEY = "Resume Journey"
     const val GOOGLE_MAPS = "com.google.android.apps.maps"
+    const val PAST_JOURNEY = "Past Journeys"
 
     fun geoLocation(originLat: Float, originLng: Float, destLat: Float, destLng: Float): String {
         return "https://www.google.com/maps/dir/?api=1" +
