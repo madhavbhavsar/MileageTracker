@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.dice.mileagetracker.data.LocationDao
 import com.dice.mileagetracker.data.LocationDb
+import com.dice.mileagetracker.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,8 +23,8 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             LocationDb::class.java,
-            "journey_db"
-        ).build()
+            Constants.JOURNEY_DB
+        ).fallbackToDestructiveMigration(false).build()
     }
 
     @Provides

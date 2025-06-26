@@ -36,7 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAV-dS1T6Uiu7qi20ELL28s4_PQtW0ulrk"/>
         <service android:name="com.dice.mileagetracker.location.LocationService" android:foregroundServiceType="location" />
     </application>
-
 </manifest>

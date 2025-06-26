@@ -8,6 +8,8 @@ object PrefKey {
 }
 
 object Constants {
+    const val EMPTY = ""
+    const val SPACE = " "
     const val SPLASH = "Splash Screen"
     const val UNAVAILABLE = "Unavailable"
     const val START_JOURNEY = "Start Journey"
@@ -20,6 +22,24 @@ object Constants {
     const val RESUME_JOURNEY = "Resume Journey"
     const val GOOGLE_MAPS = "com.google.android.apps.maps"
     const val PAST_JOURNEY = "Past Journeys"
+    const val PAST_JOURNEY_NOT_AVAILABLE = "No Past Journeys Available"
+    const val JOURNEY_ID = "JOURNEY ID: "
+    const val JOURNEY_MILES = "Miles: "
+    const val JOURNEY_KILOMETERS = "Kilometers: "
+    const val KMS = "km"
+    const val MI = "mi"
+    const val JOURNEY_TIME = "Total time: "
+    const val SHOW_MAP = "SHOW MAP"
+    const val PAST_JOURNEYS = "Past Journeys"
+    const val HOME = "Home"
+    const val JOURNEY_ROUTE = "Journey Route"
+    const val DEVELOPED_BY = "Developed by Madhav Bhavsar"
+    const val JOURNEY_DB = "journeydb"
+    const val MILES_KMS = 0.621371
+
+    fun String.addCurveBrackets(): String {
+        return "(${this})"
+    }
 
     fun geoLocation(originLat: Float, originLng: Float, destLat: Float, destLng: Float): String {
         return "https://www.google.com/maps/dir/?api=1" +
@@ -27,13 +47,4 @@ object Constants {
                 "&destination=$destLat,$destLng" +
                 "&travelmode=driving"
     }
-
-    val JOURNEY_ID = "JOURNEY ID: "
-    val JOURNEY_MILES = "Miles: "
-    val JOURNEY_KILOMETERS = "Kilometers: "
-    val JOURNEY_TIME = "Total time: "
-    val SHOW_MAP = "SHOW MAP"
-    val PAST_JOURNEYS = "Past Journeys"
-    val HOME = "Home"
-    val JOURNEY_ROUTE = "Journey Route"
 }

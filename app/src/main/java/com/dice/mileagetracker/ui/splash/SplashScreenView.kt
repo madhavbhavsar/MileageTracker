@@ -9,8 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.dice.mileagetracker.navigation.Routes
 import com.dice.mileagetracker.utils.Constants
-import com.dice.mileagetracker.utils.Routes
 import kotlinx.coroutines.delay
 
 @Composable

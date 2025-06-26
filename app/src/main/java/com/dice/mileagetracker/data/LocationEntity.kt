@@ -9,5 +9,6 @@ data class LocationEntity(
     val journeyId: Long,
     val latitude: Double,
     val longitude: Double,
-    val timestamp: Long
+    val timestamp: Long,
+    val elapsedTime: String? = null,
 )

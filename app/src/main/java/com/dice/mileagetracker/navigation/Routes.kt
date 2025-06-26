@@ -1,5 +1,6 @@
-package com.dice.mileagetracker.utils
+package com.dice.mileagetracker.navigation
 
+import com.dice.mileagetracker.ui.pastjourney.viewmodel.JourneyModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -15,5 +16,5 @@ sealed class Routes{
     data object PastJourney : Routes()
 
     @Serializable
-    data object MapScreen: Routes()
+    data class JourneyRoute(val journey: JourneyModel): Routes()
 }

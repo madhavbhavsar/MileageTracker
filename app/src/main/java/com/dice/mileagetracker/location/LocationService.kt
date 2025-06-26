@@ -7,21 +7,21 @@ import android.content.Intent
 import android.location.Location
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import com.dice.mileagetracker.R
 import com.dice.mileagetracker.data.LocationEntity
 import com.dice.mileagetracker.data.LocationRepository
 import com.dice.mileagetracker.utils.MyPreference
 import com.dice.mileagetracker.utils.formatElapsedTime
+import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -38,6 +38,7 @@ class LocationService: Service() {
     private var lastLocation: Location? = null
 
     private var startTime: Long = 0L
+    private var elapsedTime: String = ""
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var locationClient: LocationClient
@@ -77,7 +78,7 @@ class LocationService: Service() {
                 while (true) {
                     val elapsed = (System.currentTimeMillis() - startTime) / 1000
                     val formatted = formatElapsedTime(elapsed)
-
+                    elapsedTime = formatted
                     val lat = lastLocation?.latitude ?: 0.0
                     val lng = lastLocation?.longitude ?: 0.0
 
@@ -123,6 +124,17 @@ class LocationService: Service() {
     }
 
     private fun stop() {
+        serviceScope.launch {
+            myRepository.insertLocation(
+                LocationEntity(
+                    journeyId = mPref.journeyIdPref.toLong(),
+                    latitude = lastLocation?.latitude?.toDouble() ?: 0.0,
+                    longitude = lastLocation?.longitude?.toDouble()?:0.0,
+                    timestamp = System.currentTimeMillis(),
+                    elapsedTime = elapsedTime
+                )
+            )
+        }
         stopForeground(true)
         stopSelf()
     }
