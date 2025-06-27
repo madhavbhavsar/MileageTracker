@@ -58,6 +58,11 @@ fun MileageTrackerTheme(
         color = Color.Transparent,
         isNavigationBarContrastEnforced = false
     )
+    systemUiController.setNavigationBarColor(
+        darkIcons = true,
+        color = Color.Transparent,
+        navigationBarContrastEnforced = false
+    )
 
     MaterialTheme(
         colorScheme = colorScheme,

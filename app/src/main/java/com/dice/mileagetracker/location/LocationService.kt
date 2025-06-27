@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.dice.mileagetracker.R
 import com.dice.mileagetracker.data.LocationEntity
@@ -56,6 +57,7 @@ class LocationService : Service() {
     }
 
     override fun onCreate() {
+        Log.d("LocationService", "onCreate called")
         super.onCreate()
         locationClient = DefaultLocationClient(
             applicationContext, LocationServices.getFusedLocationProviderClient(applicationContext)
@@ -87,6 +89,12 @@ class LocationService : Service() {
     }
 
     private fun start() {
+        locationClient.getLastLocation { location ->
+            if (location != null) {
+                lastLocation = location
+            }
+        }
+
         startTime = if (mPref.trackingStartTime != 0L) mPref.trackingStartTime else {
             System.currentTimeMillis().also { mPref.trackingStartTime = it }
         }
@@ -98,6 +106,7 @@ class LocationService : Service() {
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        startForeground(1, notification.build())
 
         timerJob = serviceScope.launch {
             try {
@@ -150,28 +159,30 @@ class LocationService : Service() {
                 }
             }.launchIn(serviceScope)
 
-        startForeground(1, notification.build())
     }
 
     private fun stop() {
         timerJob?.cancel()
         locationJob?.cancel()
         serviceScope.launch {
-            myRepository.insertLocation(
-                LocationEntity(
-                    journeyId = mPref.journeyIdPref.toLong(),
-                    latitude = lastLocation?.latitude?.toDouble() ?: 0.0,
-                    longitude = lastLocation?.longitude?.toDouble() ?: 0.0,
-                    timestamp = System.currentTimeMillis(),
-                    elapsedTime = elapsedTime
+            lastLocation?.let { lastLoc->
+                myRepository.insertLocation(
+                    LocationEntity(
+                        journeyId = mPref.journeyIdPref.toLong(),
+                        latitude = lastLoc.latitude,
+                        longitude = lastLoc.longitude,
+                        timestamp = System.currentTimeMillis(),
+                        elapsedTime = elapsedTime
+                    )
                 )
-            )
+            }
         }
         stopForeground(true)
         stopSelf()
     }
 
     override fun onDestroy() {
+        Log.d("LocationService", "onDestroy called")
         super.onDestroy()
         timerJob?.cancel()
         locationJob?.cancel()

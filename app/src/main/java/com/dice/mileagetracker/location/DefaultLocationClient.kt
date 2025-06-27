@@ -1,10 +1,13 @@
 package com.dice.mileagetracker.location
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
+import androidx.core.app.ActivityCompat
 import com.dice.mileagetracker.utils.hasLocationPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -20,6 +23,20 @@ class DefaultLocationClient(
     private val context: Context,
     private val client: FusedLocationProviderClient
 ): LocationClient {
+
+
+    override fun getLastLocation(callback: (Location?) -> Unit) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            callback(null)
+            return
+        }
+
+        client.lastLocation.addOnSuccessListener {
+            callback(it)
+        }.addOnFailureListener {
+            callback(null)
+        }
+    }
 
     @SuppressLint("MissingPermission")
     override fun getLocationUpdates(): Flow<Location> {
