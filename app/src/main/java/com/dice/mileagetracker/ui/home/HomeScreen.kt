@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,8 +29,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.dice.mileagetracker.location.LocationService
 import com.dice.mileagetracker.navigation.Routes
+import com.dice.mileagetracker.ui.common.AppAlertDialog
 import com.dice.mileagetracker.ui.common.AppBar
 import com.dice.mileagetracker.ui.common.AppBarProperties
+import com.dice.mileagetracker.ui.common.LoadingProgressBar
 import com.dice.mileagetracker.ui.home.viewmodel.HomeViewModel
 import com.dice.mileagetracker.ui.home.viewmodel.JourneyState
 import com.dice.mileagetracker.ui.theme.Color_021632
@@ -38,12 +41,15 @@ import com.dice.mileagetracker.ui.theme.Color_FFFFFF
 import com.dice.mileagetracker.utils.Constants
 import com.dice.mileagetracker.utils.PermissionHandlerFlow
 import com.dice.mileagetracker.utils.singleClickable
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var triggerPermissionFlow by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     // button states
     LaunchedEffect(uiState.journeyState) {
@@ -189,6 +195,8 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                                 action = LocationService.ACTION_STOP
                                 context.startService(this)
                             }
+
+                            viewModel.fetchCurrentJourney()
                         }
                     }
                     .padding(10.dp),
@@ -249,4 +257,24 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
             )
         }
     }
+
+    LoadingProgressBar(visible = uiState.isLoading)
+    AppAlertDialog(
+        isVisible = uiState.showDialog != null,
+        journeyModel = uiState.showDialog,
+        mapNavigate = {
+            scope.launch {
+                viewModel.updateJourneyState(JourneyState.New)
+                viewModel.showDialog(null)
+                delay(500L) // delay for smooth transition
+                navHostController.navigate(Routes.JourneyRoute(journey = it))
+            }
+        },
+        onDismissRequest = {
+            scope.launch {
+                viewModel.updateJourneyState(JourneyState.New)
+                viewModel.showDialog(null)
+            }
+        }
+    )
 }

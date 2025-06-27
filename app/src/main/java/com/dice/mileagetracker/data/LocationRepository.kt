@@ -10,4 +10,8 @@ class LocationRepository @Inject constructor(private val locationDao: LocationDa
     suspend fun fetchAllLocation(): List<LocationEntity> {
         return locationDao.fetchAllLocations()
     }
+
+    suspend fun getLocationsByJourney(journeyID:Int): List<LocationEntity> {
+        return locationDao.getLocationsByJourney(journeyID)
+    }
 }

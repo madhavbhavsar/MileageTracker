@@ -30,6 +30,7 @@ object Constants {
     const val RESUME_JOURNEY = "Resume Journey"
     const val GOOGLE_MAPS = "com.google.android.apps.maps"
     const val PAST_JOURNEY = "Past Journeys"
+    const val DONE = "DONE"
     const val PAST_JOURNEY_NOT_AVAILABLE = "No Past Journeys Available"
     const val JOURNEY_ID = "JOURNEY ID: "
     const val JOURNEY_MILES = "Miles: "
