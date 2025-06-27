@@ -27,8 +27,6 @@ An advanced mileage tracking Android application built using **Jetpack Compose**
 
 📦 **[Download APK](https://drive.google.com/file/d/1Ri2XKavztvLGvn9qn7ilLn_WQX_2iFQ7/view?usp=sharing)**
 
-> 🔐 Make sure the Google Drive links have permission set to: **"Anyone with the link can view"**.
-> 
 ---
 
 ## 🧩 Features
