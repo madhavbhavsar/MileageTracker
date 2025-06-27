@@ -8,6 +8,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
 import androidx.core.app.ActivityCompat
+import com.dice.mileagetracker.utils.Constants
 import com.dice.mileagetracker.utils.hasLocationPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -22,11 +23,15 @@ import kotlinx.coroutines.launch
 class DefaultLocationClient(
     private val context: Context,
     private val client: FusedLocationProviderClient
-): LocationClient {
+) : LocationClient {
 
 
     override fun getLastLocation(callback: (Location?) -> Unit) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             callback(null)
             return
         }
@@ -41,24 +46,27 @@ class DefaultLocationClient(
     @SuppressLint("MissingPermission")
     override fun getLocationUpdates(): Flow<Location> {
         return callbackFlow {
-            if(!context.hasLocationPermission()) {
-                throw LocationClient.LocationException("Missing location permission")
+            if (!context.hasLocationPermission()) {
+                throw LocationClient.LocationException(Constants.MISSING_LOCATION_PERMISSION)
             }
 
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val locationManager =
+                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-            val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-            if(!isGpsEnabled && !isNetworkEnabled) {
-                throw LocationClient.LocationException("GPS is disabled")
+            val isNetworkEnabled =
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            if (!isGpsEnabled && !isNetworkEnabled) {
+                throw LocationClient.LocationException(Constants.GPS_DISABLED)
             }
 
-          /*  val request = LocationRequest.create()
-                .setInterval(interval)
-                .setFastestInterval(interval)*/
+            /*  val request = LocationRequest.create()
+                  .setInterval(interval)
+                  .setFastestInterval(interval)*/
 
-            val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L) // 5 seconds
-                .setMinUpdateDistanceMeters(10f)
-                .build()
+            val request =
+                LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L) // 5 seconds
+                    .setMinUpdateDistanceMeters(10f)
+                    .build()
 
             val locationCallback = object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult) {

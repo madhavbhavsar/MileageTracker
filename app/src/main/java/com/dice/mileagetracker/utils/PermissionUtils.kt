@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
+import com.dice.mileagetracker.utils.Constants.rationalText
 
 fun isLocationEnabled(context: Context): Boolean {
     val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -46,8 +47,8 @@ fun PermissionHandlerFlow(
 
     var currentIndex by remember { mutableStateOf(0) }
     var showRationale by remember { mutableStateOf(false) }
-    var rationaleText by remember { mutableStateOf("") }
-    var permissionToRequest by remember { mutableStateOf("") }
+    var rationaleText by remember { mutableStateOf(Constants.EMPTY) }
+    var permissionToRequest by remember { mutableStateOf(Constants.EMPTY) }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -55,7 +56,7 @@ fun PermissionHandlerFlow(
         if (granted) {
             currentIndex++
         } else {
-            Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, Constants.PERMISSION_DENIED, Toast.LENGTH_SHORT).show()
             onComplete()
         }
     }
@@ -64,7 +65,7 @@ fun PermissionHandlerFlow(
         if (currentIndex >= permissions.size) {
             // ✅ All permissions granted — now check GPS
             if (!isLocationEnabled(context)) {
-                Toast.makeText(context, "Please enable GPS to start journey", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, Constants.ENABLE_GPS, Toast.LENGTH_LONG).show()
                 context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                 onComplete()
                 return@LaunchedEffect
@@ -76,7 +77,7 @@ fun PermissionHandlerFlow(
         } else {
             val perm = permissions[currentIndex]
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
-                rationaleText = "This permission is required for ${perm.split('.').last().replace("_", " ").lowercase()}."
+                rationaleText = rationalText(perm)
                 permissionToRequest = perm
                 showRationale = true
             } else {
@@ -88,19 +89,19 @@ fun PermissionHandlerFlow(
     if (showRationale) {
         AlertDialog(
             onDismissRequest = { showRationale = false },
-            title = { Text("Permission Required") },
+            title = { Text(Constants.PERMISSION_REQUIRED) },
             text = { Text(rationaleText) },
             confirmButton = {
                 TextButton(onClick = {
                     showRationale = false
                     launcher.launch(permissionToRequest)
-                }) { Text("Allow") }
+                }) { Text(Constants.ALLOW) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showRationale = false
                     onComplete()
-                }) { Text("Deny") }
+                }) { Text(Constants.DENY) }
             }
         )
     }

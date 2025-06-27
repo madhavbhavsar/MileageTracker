@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import androidx.annotation.DimenRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -13,11 +12,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
 import com.dice.mileagetracker.utils.Constants.geoLocation
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -25,37 +19,6 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-val @receiver:DimenRes Int.dimen: Dp
-    @Composable
-    get() = dimensionResource(id = this)
-
-@Composable
-fun Float.toDp(): Dp {
-    return with(LocalDensity.current) { this@toDp.toDp() }
-}
-
-@Composable
-fun Int.toDp(): Dp {
-    return with(LocalDensity.current) { this@toDp.toDp() }
-}
-
-@Composable
-fun Dp.toPx(): Float {
-    return with(LocalDensity.current) { this@toPx.toPx() }
-}
-
-fun checkCondition(condition: Boolean, onTrue: () -> Unit, onFalse: () -> Unit = {}) {
-    if (condition) onTrue.invoke() else onFalse.invoke()
-}
-
-val @receiver:DimenRes Int.asSp: TextUnit
-    @Composable
-    get() = dimensionResource(id = this).value.sp
-
-
-fun String.toNormalCase(): String {
-    return this.split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
-}
 
 @Composable
 fun Modifier.singleClickable(

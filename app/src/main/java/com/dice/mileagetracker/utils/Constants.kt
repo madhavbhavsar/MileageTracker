@@ -44,9 +44,17 @@ object Constants {
     const val JOURNEY_ROUTE = "Journey Route"
     const val DEVELOPED_BY = "Developed by Madhav Bhavsar"
     const val JOURNEY_DB = "journeydb"
+    const val LOCATION_TABLE =  "location_table"
     const val MILES_KMS = 0.621371
     const val TRACKING_LOCATION = "Tracking location..."
     const val DECIMAL_FORMAT = "%.2f"
+    const val ALLOW = "Allow"
+    const val DENY = "Deny"
+    const val PERMISSION_REQUIRED = "Permission Required"
+    const val PERMISSION_DENIED = "Permission denied"
+    const val ENABLE_GPS = "Please enable GPS to start journey"
+    const val GPS_DISABLED = "GPS is disabled"
+    const val MISSING_LOCATION_PERMISSION = "Missing location permission"
 
     fun String.addCurveBrackets(): String {
         return "(${this})"
@@ -61,5 +69,11 @@ object Constants {
 
     fun printLocationTime(lat: String? = null, long: String? = null, time: String? = null): String {
         return "Location: (${lat},${long})\nElapsed Time: ${time}"
+    }
+
+    fun rationalText(perm: String): String {
+        return "This permission is required for ${
+            perm.split('.').last().replace("_", " ").lowercase()
+        }."
     }
 }

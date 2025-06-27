@@ -44,7 +44,7 @@ fun JourneyRouteScreen(navController: NavController, journey: JourneyModel) {
                 points[0].longitude ?: 0.0
             )
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(startingPoint, 11f),
+                update = CameraUpdateFactory.newLatLngZoom(startingPoint, 15f),
                 durationMs = 1000
             )
         }
