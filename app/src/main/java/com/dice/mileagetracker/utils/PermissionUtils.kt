@@ -79,32 +79,31 @@ class NotificationPermissionManager(
     }
 }
 
-
 fun showNotificationSettingsDialog(context: Context) {
     AlertDialog.Builder(context)
-        .setTitle("Notification Permission Required")
-        .setMessage("Please enable notifications from settings to receive journey alerts.")
-        .setPositiveButton("Go to Settings") { _, _ ->
+        .setTitle(Permission.NOTIFICATION_TITLE)
+        .setMessage(Permission.ENABLE_NOTIFICATION)
+        .setPositiveButton(Permission.GOTO_SETTINGS) { _, _ ->
             val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                 putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
             }
             context.startActivity(intent)
         }
-        .setNegativeButton("Cancel", null)
+        .setNegativeButton(Permission.CANCEL, null)
         .show()
 }
 
 fun showLocationSettingsDialog(context: Context) {
     AlertDialog.Builder(context)
-        .setTitle("Location Permission Required")
-        .setMessage("Please enable fine location permission from settings.")
-        .setPositiveButton("Go to Settings") { _, _ ->
+        .setTitle(Permission.LOCATION_TITLE)
+        .setMessage(Permission.LOCATION_ENABLE)
+        .setPositiveButton(Permission.GOTO_SETTINGS) { _, _ ->
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", context.packageName, null)
+                data = Uri.fromParts(Permission.PACKAGE, context.packageName, null)
             }
             context.startActivity(intent)
         }
-        .setNegativeButton("Cancel", null)
+        .setNegativeButton(Permission.CANCEL, null)
         .show()
 }
 
@@ -137,15 +136,15 @@ class BackgroundLocationPermissionManager(
 
 fun showBackgroundLocationSettingsDialog(context: Context) {
     AlertDialog.Builder(context)
-        .setTitle("Background Location Required")
-        .setMessage("To track your journey even in background, please allow background location in settings.")
-        .setPositiveButton("Go to Settings") { _, _ ->
+        .setTitle(Permission.BACKGROUND_LOC_TITLE)
+        .setMessage(Permission.BACKGROUND_LOC_ENABLE)
+        .setPositiveButton(Permission.GOTO_SETTINGS) { _, _ ->
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", context.packageName, null)
+                data = Uri.fromParts(Permission.PACKAGE, context.packageName, null)
             }
             context.startActivity(intent)
         }
-        .setNegativeButton("Cancel", null)
+        .setNegativeButton(Permission.CANCEL, null)
         .show()
 }
 

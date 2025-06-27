@@ -77,3 +77,17 @@ object Constants {
         }."
     }
 }
+
+object Permission {
+    const val NOTIFICATION_TITLE = "Notification Permission Required"
+    const val LOCATION_TITLE = "Location Permission Required"
+    const val ENABLE_NOTIFICATION =
+        "Please enable notifications from settings to receive journey alerts."
+    const val GOTO_SETTINGS = "Go to Settings"
+    const val LOCATION_ENABLE = "Please enable fine location permission from settings."
+    const val PACKAGE = "package"
+    const val CANCEL = "Cancel"
+    const val BACKGROUND_LOC_TITLE = "Background Location Required"
+    const val BACKGROUND_LOC_ENABLE =
+        "To track your journey even in background, please allow background location in settings."
+}

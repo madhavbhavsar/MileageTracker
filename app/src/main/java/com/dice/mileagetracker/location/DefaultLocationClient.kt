@@ -59,10 +59,6 @@ class DefaultLocationClient(
                 throw LocationClient.LocationException(Constants.GPS_DISABLED)
             }
 
-            /*  val request = LocationRequest.create()
-                  .setInterval(interval)
-                  .setFastestInterval(interval)*/
-
             val request =
                 LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L) // 5 seconds
                     .setMinUpdateDistanceMeters(10f)
