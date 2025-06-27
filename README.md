@@ -33,14 +33,13 @@ An advanced mileage tracking Android application built using **Jetpack Compose**
 
 - ✅ **Start, Stop, Pause, and Resume Journey**
 - 📍 **Foreground service** using `FusedLocationProviderClient` for high-accuracy location updates
-- 📉 **Distance Calculation** using Haversine formula or Android utilities
+- 📉 **Distance Calculation** using Haversine formula 
 - 🗺️ **Map Route Preview** (Google Maps polyline)
-- 🔋 **Battery Optimization Handling** and background tracking
 - ♻️ **BootReceiver** to auto-restart service after reboot
 - 🔒 **Permissions Managed** (Foreground & Background Location)
 - 📦 **Room Database** for storing all journey data locally
-- 📋 **Journey History List** with detailed screen
-- 🧱 **MVVM + Clean Architecture**
+- 📋 **Past Journeys List** with detailed screen
+- 🧱 **MVVM Architecture**
 - 🧭 **Jetpack Navigation** with **type-safe arguments**
 - 🛠️ **Dagger-Hilt** for dependency injection
 - 🔄 **Coroutines + Flow** for asynchronous tasks
@@ -50,7 +49,7 @@ An advanced mileage tracking Android application built using **Jetpack Compose**
 ## 📲 Tech Stack
 
 - **UI**: Jetpack Compose, Material 3
-- **Architecture**: MVVM + Clean Architecture
+- **Architecture**: MVVM
 - **Navigation**: Jetpack Navigation (Compose)
 - **DI**: Dagger-Hilt
 - **Location**: FusedLocationProviderClient (High Accuracy)
