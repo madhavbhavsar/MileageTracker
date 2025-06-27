@@ -1,108 +1,244 @@
 package com.dice.mileagetracker.utils
 
 import android.Manifest
-import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.location.LocationManager
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import com.dice.mileagetracker.utils.Constants.rationalText
+import androidx.core.content.ContextCompat
 
-fun isLocationEnabled(context: Context): Boolean {
-    val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-            lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+class LocationPermissionManager(
+    private val context: Context,
+    private val onPermissionGranted: () -> Unit,
+    private val onSettingsRequired: () -> Unit
+) {
+    private var deniedCount = 0
+
+    fun handlePermissionResult(permissions: Map<String, Boolean>) {
+        val isFineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val isCoarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+        if (isFineGranted) {
+            onPermissionGranted()
+        } else {
+            deniedCount++
+            if (deniedCount >= 3) {
+                onSettingsRequired()
+            }
+        }
+    }
+
+    fun needsPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
+    }
+
+    fun permissionArray(): Array<String> {
+        return arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    }
 }
 
-@Composable
-fun PermissionHandlerFlow(
-    start: Boolean,
-    onSuccess: () -> Unit,
-    onComplete: () -> Unit
+
+class NotificationPermissionManager(
+    private val context: Context,
+    private val onPermissionGranted: () -> Unit,
+    private val onSettingsRequired: () -> Unit
 ) {
-    if (!start) return
+    private var deniedCount = 0
 
-    val context = LocalContext.current
-    val activity = context as Activity
-
-    val permissions = listOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-        Manifest.permission.POST_NOTIFICATIONS
-    )
-
-    var currentIndex by remember { mutableStateOf(0) }
-    var showRationale by remember { mutableStateOf(false) }
-    var rationaleText by remember { mutableStateOf(Constants.EMPTY) }
-    var permissionToRequest by remember { mutableStateOf(Constants.EMPTY) }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
+    fun handleResult(granted: Boolean) {
         if (granted) {
-            currentIndex++
+            onPermissionGranted()
         } else {
-            Toast.makeText(context, Constants.PERMISSION_DENIED, Toast.LENGTH_SHORT).show()
-            onComplete()
-        }
-    }
-
-    LaunchedEffect(currentIndex) {
-        if (currentIndex >= permissions.size) {
-            // ✅ All permissions granted — now check GPS
-            if (!isLocationEnabled(context)) {
-                Toast.makeText(context, Constants.ENABLE_GPS, Toast.LENGTH_LONG).show()
-                context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                onComplete()
-                return@LaunchedEffect
-            }
-
-            // 🚀 All good: permissions + GPS
-            onSuccess()
-            onComplete()
-        } else {
-            val perm = permissions[currentIndex]
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
-                rationaleText = rationalText(perm)
-                permissionToRequest = perm
-                showRationale = true
-            } else {
-                launcher.launch(perm)
+            deniedCount++
+            if (deniedCount >= 2) {
+                onSettingsRequired()
             }
         }
     }
 
-    if (showRationale) {
-        AlertDialog(
-            onDismissRequest = { showRationale = false },
-            title = { Text(Constants.PERMISSION_REQUIRED) },
-            text = { Text(rationaleText) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showRationale = false
-                    launcher.launch(permissionToRequest)
-                }) { Text(Constants.ALLOW) }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showRationale = false
-                    onComplete()
-                }) { Text(Constants.DENY) }
+    fun isNotificationPermissionNeeded(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+    }
+}
+
+
+fun showNotificationSettingsDialog(context: Context) {
+    AlertDialog.Builder(context)
+        .setTitle("Notification Permission Required")
+        .setMessage("Please enable notifications from settings to receive journey alerts.")
+        .setPositiveButton("Go to Settings") { _, _ ->
+            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            }
+            context.startActivity(intent)
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+fun showLocationSettingsDialog(context: Context) {
+    AlertDialog.Builder(context)
+        .setTitle("Location Permission Required")
+        .setMessage("Please enable fine location permission from settings.")
+        .setPositiveButton("Go to Settings") { _, _ ->
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+            context.startActivity(intent)
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+class BackgroundLocationPermissionManager(
+    private val context: Context,
+    private val onPermissionGranted: () -> Unit,
+    private val onSettingsRequired: () -> Unit
+) {
+    private var deniedCount = 0
+
+    fun handleResult(granted: Boolean) {
+        if (granted) {
+            onPermissionGranted()
+        } else {
+            deniedCount++
+            if (deniedCount >= 2) {
+                onSettingsRequired()
+            }
+        }
+    }
+
+    fun isNeeded(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+    }
+}
+
+fun showBackgroundLocationSettingsDialog(context: Context) {
+    AlertDialog.Builder(context)
+        .setTitle("Background Location Required")
+        .setMessage("To track your journey even in background, please allow background location in settings.")
+        .setPositiveButton("Go to Settings") { _, _ ->
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+            context.startActivity(intent)
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+
+@Composable
+fun CombinedPermissionHandler(
+    onAllPermissionsGranted: () -> Unit
+): (Context) -> Unit {
+    val context = LocalContext.current
+
+    // Step 3: Background location
+    val backgroundManager = remember {
+        BackgroundLocationPermissionManager(
+            context = context,
+            onPermissionGranted = onAllPermissionsGranted,
+            onSettingsRequired = {
+                showBackgroundLocationSettingsDialog(context)
             }
         )
+    }
+
+    val backgroundLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        backgroundManager.handleResult(granted)
+    }
+
+    // Step 2: Notification permission
+    val notificationManager = remember {
+        NotificationPermissionManager(
+            context = context,
+            onPermissionGranted = {
+                if (backgroundManager.isNeeded()) {
+                    backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                } else {
+                    onAllPermissionsGranted()
+                }
+            },
+            onSettingsRequired = {
+                showNotificationSettingsDialog(context)
+            }
+        )
+    }
+
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        notificationManager.handleResult(granted)
+    }
+
+    // Step 1: Location permission
+    val locationManager = remember {
+        LocationPermissionManager(
+            context = context,
+            onPermissionGranted = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    notificationManager.isNotificationPermissionNeeded()
+                ) {
+                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else if (backgroundManager.isNeeded()) {
+                    backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                } else {
+                    onAllPermissionsGranted()
+                }
+            },
+            onSettingsRequired = {
+                showLocationSettingsDialog(context)
+            }
+        )
+    }
+
+    val locationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        locationManager.handlePermissionResult(permissions)
+    }
+
+    return remember {
+        {
+            if (locationManager.needsPermission()) {
+                locationLauncher.launch(locationManager.permissionArray())
+            } else {
+                // Already has fine location
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    notificationManager.isNotificationPermissionNeeded()
+                ) {
+                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else if (backgroundManager.isNeeded()) {
+                    backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                } else {
+                    onAllPermissionsGranted()
+                }
+            }
+        }
     }
 }

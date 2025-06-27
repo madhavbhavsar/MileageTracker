@@ -15,10 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -38,8 +35,8 @@ import com.dice.mileagetracker.ui.home.viewmodel.JourneyState
 import com.dice.mileagetracker.ui.theme.Color_021632
 import com.dice.mileagetracker.ui.theme.Color_2196F3
 import com.dice.mileagetracker.ui.theme.Color_FFFFFF
+import com.dice.mileagetracker.utils.CombinedPermissionHandler
 import com.dice.mileagetracker.utils.Constants
-import com.dice.mileagetracker.utils.PermissionHandlerFlow
 import com.dice.mileagetracker.utils.singleClickable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -48,9 +45,7 @@ import kotlinx.coroutines.launch
 fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var triggerPermissionFlow by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-
     // button states
     LaunchedEffect(uiState.journeyState) {
         when (uiState.journeyState) {
@@ -67,26 +62,22 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
             }
         }
     }
-    PermissionHandlerFlow(
-        start = triggerPermissionFlow,
-        onSuccess = {
-            if (uiState.startEnabled) {
-                viewModel.updateJourneyState(JourneyState.Started)
-                viewModel.updateJourneyId = (viewModel.updateJourneyId + 1)
-                viewModel.updateTrackingStartTime = System.currentTimeMillis()
-                viewModel.updateIsTracking = true
-                viewModel.updateIsTrackingPaused = false
 
-                Intent(context, LocationService::class.java).apply {
-                    action = LocationService.ACTION_START
-                    context.startService(this)
-                }
+    val launchPermissionRequest = CombinedPermissionHandler {
+        // ✅ Safe to start journey now
+        if (uiState.startEnabled) {
+            viewModel.updateJourneyState(JourneyState.Started)
+            viewModel.updateJourneyId = (viewModel.updateJourneyId + 1)
+            viewModel.updateTrackingStartTime = System.currentTimeMillis()
+            viewModel.updateIsTracking = true
+            viewModel.updateIsTrackingPaused = false
+
+            Intent(context, LocationService::class.java).apply {
+                action = LocationService.ACTION_START
+                context.startService(this)
             }
-        },
-        onComplete = {
-            triggerPermissionFlow = false
         }
-    )
+    }
 
     Column(
         Modifier
@@ -112,7 +103,7 @@ fun HomeScreenView(navHostController: NavHostController, viewModel: HomeViewMode
                         shape = RoundedCornerShape(8.dp)
                     )
                     .singleClickable {
-                        triggerPermissionFlow = true
+                        launchPermissionRequest(context)
                     }
                     .padding(10.dp),
                 color = Color.White,
