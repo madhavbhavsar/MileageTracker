@@ -3,8 +3,8 @@ package com.dice.mileagetracker
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.os.Build
 import android.content.Context
+import android.os.Build
 import com.dice.mileagetracker.utils.Notification
 import dagger.hilt.android.HiltAndroidApp
 

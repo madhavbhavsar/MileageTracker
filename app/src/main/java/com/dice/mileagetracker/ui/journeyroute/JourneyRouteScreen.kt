@@ -18,6 +18,8 @@ import com.dice.mileagetracker.R
 import com.dice.mileagetracker.ui.common.AppBar
 import com.dice.mileagetracker.ui.common.AppBarProperties
 import com.dice.mileagetracker.ui.pastjourney.viewmodel.JourneyModel
+import com.dice.mileagetracker.ui.theme.Color_021632
+import com.dice.mileagetracker.ui.theme.Color_FFFFFF
 import com.dice.mileagetracker.utils.Constants
 import com.dice.mileagetracker.utils.Constants.addCurveBrackets
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,8 +28,6 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
-import com.dice.mileagetracker.ui.theme.Color_021632
-import com.dice.mileagetracker.ui.theme.Color_FFFFFF
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 

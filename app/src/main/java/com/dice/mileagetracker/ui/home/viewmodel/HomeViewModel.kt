@@ -1,6 +1,5 @@
 package com.dice.mileagetracker.ui.home.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dice.mileagetracker.data.LocationRepository
@@ -17,8 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
